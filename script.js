@@ -1,140 +1,194 @@
-// Init Player's & Computer's score as Global Variables
-let humanScore = 0;
+// Init Player's & Computer's score
+let playerScore = 0;
 let computerScore = 0;
+
+// Set Player's choice buttons
+const playerRock = document.querySelector("#player-rock");
+const playerPaper = document.querySelector("#player-paper");
+const playerScissors = document.querySelector("#player-scissors");
+
+// Set click event to choice buttons
+playerRock.addEventListener("click", playRound);
+playerPaper.addEventListener("click", playRound);
+playerScissors.addEventListener("click", playRound);
+
+// Set Player's & Computer's score display
+const playerResult = document.querySelector(".player-score");
+const computerResult = document.querySelector(".computer-score");
+
+// Display Player's & Computer's choice on screen
+const playerChoiceDisplay = document.querySelector(".player-choice");
+const computerChoiceDisplay = document.querySelector(".computer-choice");
+
+// Display Round & Game Winner messages
+const roundWinnerMsg = document.querySelector(".display-round-winner");
+const gameWinnerMsg = document.querySelector(".display-game-winner");
+
+// Restart game button
+const toRestartGame = document.querySelector(".h2-play");
+const restartGameBtn = document.createElement("button");
+restartGameBtn.textContent = "Restart Game";
+restartGameBtn.classList.add("restart-btn");
+restartGameBtn.addEventListener("click", restartGame);
+
+function restartGame() {
+  // Reset scores
+  playerScore = 0;
+  computerScore = 0;
+
+  // Reset displays
+  playerResult.textContent = playerScore;
+  computerResult.textContent = computerScore;
+  playerChoiceDisplay.textContent = "?";
+  computerChoiceDisplay.textContent = "?";
+  roundWinnerMsg.textContent = "";
+  gameWinnerMsg.textContent = "";
+
+  // Remove styles
+  gameWinnerMsg.classList.remove("green-text", "red-text");
+
+  // Enable Player choice buttons
+  playerRock.disabled = false;
+  playerPaper.disabled = false;
+  playerScissors.disabled = false;
+
+  restartGameBtn.remove();
+}
 
 function getComputerChoice() {
   // Generate a number between 1 - 99 so that it can be evenly split 33/33/33
-  let choice = Math.floor(Math.random() * 100);
-  if (choice === 0) {
-    choice += 1;
+  let generating = Math.floor(Math.random() * 100);
+  if (generating === 0) {
+    generating += 1;
   }
 
   // Converts the number (1-33 = rock) (34-66 = paper) (67-99 = scissors)
-  let answer = "";
-  if (choice <= 33) {
-    answer = "rock";
-  } else if (choice <= 66) {
-    answer = "paper";
+  let choice = "";
+  if (generating <= 33) {
+    choice = "rock";
+  } else if (generating <= 66) {
+    choice = "paper";
   } else {
-    answer = "scissors";
+    choice = "scissors";
   }
-
-  // Tests to check values
-  //   console.log(choice);
-  //   console.log("Computer: " + answer);
-
-  return answer;
-}
-
-function getHumanChoice() {
-  let choice = prompt('Please input either "rock" "paper" or "scissors" ');
-
-  // Returns "invalid" if User clicks the cancel button or if input is blank
-  choice = choice ? choice.toLowerCase() : "invalid";
-
-  // Test to check player choice
-  // console.log("Player: " + choice);
 
   return choice;
 }
 
-function playRound() {
+function playRound(e) {
+  // Reset previous round winner msg style
+  roundWinnerMsg.classList.remove("green-text", "red-text");
+
   // Get Player & Computer choice
-  const humanChoice = getHumanChoice();
+  const playerChoice = e.target.textContent.toLowerCase();
   const computerChoice = getComputerChoice();
-  // Compare Player & Computer Choice
+
+  // Display choices
+  playerChoiceDisplay.textContent = playerChoice.toUpperCase();
+  computerChoiceDisplay.textContent = computerChoice.toUpperCase();
+
+  // Check winner of round
+  let winner = checkRoundWinner(playerChoice, computerChoice);
+
+  updateAndDisplayScore(winner);
+
+  displayRoundWinner(winner);
+
+  if (playerScore === 5) {
+    gameWinnerMsg.textContent = "Congratulations! You have won the game!";
+    gameWinnerMsg.classList.add("green-text");
+    playerRock.disabled = true;
+    playerPaper.disabled = true;
+    playerScissors.disabled = true;
+    toRestartGame.appendChild(restartGameBtn);
+  }
+  if (computerScore === 5) {
+    gameWinnerMsg.textContent = "You lost this game. Better luck next time.";
+    gameWinnerMsg.classList.add("red-text");
+    playerRock.disabled = true;
+    playerPaper.disabled = true;
+    playerScissors.disabled = true;
+    toRestartGame.appendChild(restartGameBtn);
+  }
+}
+
+function checkRoundWinner(playerChoice, computerChoice) {
+  let winner = "";
   if (computerChoice === "rock") {
-    switch (humanChoice) {
+    switch (playerChoice) {
       case "rock":
-        console.log("It's a draw! Both chose Rock");
+        winner = "draw";
         break;
 
       case "paper":
-        humanScore += 1;
-        console.log("Yay! You win this round! Paper beats Rock");
+        winner = "player";
         break;
 
       case "scissors":
-        computerScore += 1;
-        console.log("You lose! Rock beats Scissors");
-        break;
-
-      default:
-        computerScore += 1;
-        console.log("Your input is invalid! Computer wins by default");
+        winner = "computer";
         break;
     }
   }
   if (computerChoice === "paper") {
-    switch (humanChoice) {
+    switch (playerChoice) {
       case "rock":
-        computerScore += 1;
-        console.log("You lose! Paper beats Rock");
+        winner = "computer";
         break;
 
       case "paper":
-        console.log("It's a draw! Both chose Paper");
+        winner = "draw";
         break;
 
       case "scissors":
-        humanScore += 1;
-        console.log("Yay! You win this round! Scissors beats Paper");
-        break;
-
-      default:
-        computerScore += 1;
-        console.log("Your input is invalid! Computer wins by default");
+        winner = "player";
         break;
     }
   }
   if (computerChoice === "scissors") {
-    switch (humanChoice) {
+    switch (playerChoice) {
       case "rock":
-        humanScore += 1;
-        console.log("Yay! You win this round! Rock beats Scissors");
+        winner = "player";
         break;
 
       case "paper":
-        computerScore += 1;
-        console.log("You lose! Scissors beats Paper");
+        winner = "computer";
         break;
 
       case "scissors":
-        console.log("It's a draw! Both chose Scissors");
-        break;
-
-      default:
-        computerScore += 1;
-        console.log("Your input is invalid! Computer wins by default");
+        winner = "draw";
         break;
     }
   }
+  return winner;
 }
 
-// Runs playRound 5 times
-function playGame() {
-  playRound();
-  playRound();
-  playRound();
-  playRound();
-  playRound();
+function updateAndDisplayScore(winner) {
+  switch (winner) {
+    case "player":
+      playerScore += 1;
+      playerResult.textContent = playerScore;
+      roundWinnerMsg.classList.add("green-text");
+      break;
 
-  // Display scores
-  console.log("-----Final Results-----");
-  console.log("Player Score: " + humanScore);
-  console.log("Computer Score: " + computerScore);
-  // Declares the winner
-  if (humanScore === computerScore) {
-    console.log("Its a draw game! Better luck next time.");
-  } else if (humanScore > computerScore) {
-    console.log("Congratulations! You won!");
-  } else {
-    console.log("Oh no! You lost. Try again next time.");
+    case "computer":
+      computerScore += 1;
+      computerResult.textContent = computerScore;
+      roundWinnerMsg.classList.add("red-text");
+      break;
+
+    default:
+      break;
   }
-
-  // Reset scores
-  humanScore = 0;
-  computerScore = 0;
 }
 
-playGame();
+function displayRoundWinner(winner) {
+  if (winner === "player") {
+    roundWinnerMsg.textContent = "Yay! You won this round!";
+  } else if (winner === "computer") {
+    roundWinnerMsg.textContent = "Oh No! You lost this round";
+  } else if (winner === "draw") {
+    roundWinnerMsg.textContent = "It's a draw game!";
+  } else {
+    roundWinnerMsg.textContent = "Invalid game due to invalid inputs!";
+  }
+}
